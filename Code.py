@@ -1,9 +1,6 @@
 # Import the necessary modules
 import math
 import streamlit as st
-import csv
-import time
-import os.path
 
 # Define the distances for each golf club in yards
 clubDistances = {
@@ -71,39 +68,3 @@ if st.button("Recommend Club"):
         st.error(club)
     else:
         st.success(f"Recommended club: {club}")
-
-# Define the path and filename for the log file
-log_path = "logs/"
-log_filename = "golf_club_recommender_logs.csv"
-
-# Create the logs directory if it doesn't exist
-if not os.path.exists(log_path):
-    os.makedirs(log_path)
-
-# Define the header for the log file
-header = ["timestamp", "ip_address", "distance", "wind_speed", "wind_direction", "slope_degrees"]
-
-# Create the log file if it doesn't exist
-if not os.path.isfile(log_path + log_filename):
-    with open(log_path + log_filename, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-
-# Get the user's IP address
-user_ip = st.request_headers["X-Forwarded-For"]
-
-# Get the current timestamp in ISO format
-timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-
-# Write the user's input values to the log file
-with open(log_path + log_filename, "a+", newline="") as f:
-    writer = csv.writer(f)
-    
-    # Check if the file is empty, and write the header row if necessary
-    f.seek(0)
-    first_char = f.read(1)
-    if not first_char:
-        writer.writerow(header)
-        
-    writer.writerow([timestamp, user_ip, distance, wind_speed, wind_direction, slope_degrees])
-
