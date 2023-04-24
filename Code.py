@@ -19,20 +19,19 @@ clubDistances = {
 }
 
 def get_wind_degrees(wind_direction):
-    if wind_direction == "N":
-        return 0
-    elif wind_direction == "S":
-        return 180
-    elif wind_direction == "E":
-        return 90
-    elif wind_direction == "W":
-        return 270
+    # Convert wind direction string to degrees
+    directions = {"N": 0, "NE": 45, "E": 90, "SE": 135, "S": 180, "SW": 225, "W": 270, "NW": 315}
+    return directions.get(wind_direction.upper())
 
-def recommend_club(distance, wind_speed, wind_direction, slope):
+def recommend_club(distance, wind_speed, wind_direction, slope_degrees):
+    # Validate inputs
+    if distance < 0 or wind_speed < 0 or slope_degrees < -90 or slope_degrees > 90:
+        return "Invalid input values. Please check your inputs."
+
     # Calculate actual distance taking into account wind and slope
     wind_degrees = get_wind_degrees(wind_direction)
     wind_effect = wind_speed * math.sin(math.radians(wind_degrees))
-    slope_effect = slope / 4 # estimate of distance change per degree of slope
+    slope_effect = distance * math.tan(math.radians(slope_degrees))
     actual_distance = distance + wind_effect + slope_effect
 
     # Find the club with the closest distance to the actual distance
@@ -51,11 +50,14 @@ def recommend_club(distance, wind_speed, wind_direction, slope):
 st.title("Golf Club Recommender")
 st.markdown("Enter the distance, wind speed, wind direction, and slope to get a recommendation for which golf club to use.")
 
-distance = st.number_input("Distance (yards)")
-wind_speed = st.number_input("Wind Speed (mph)")
-wind_direction = st.selectbox("Wind Direction", ["N", "S", "E", "W"])
-slope = st.number_input("Slope (degrees)")
+distance = st.number_input("Distance (yards)", min_value=0)
+wind_speed = st.number_input("Wind Speed (mph)", min_value=0)
+wind_direction = st.selectbox("Wind Direction", ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
+slope_degrees = st.slider("Slope (degrees)", min_value=-90, max_value=90)
 
 if st.button("Recommend Club"):
-    club = recommend_club(distance, wind_speed, wind_direction, slope)
-    st.success(f"Recommended club: {club}")
+    club = recommend_club(distance, wind_speed, wind_direction, slope_degrees)
+    if "Invalid input values" in club:
+        st.error(club)
+    else:
+        st.success(f"Recommended club: {club}")
