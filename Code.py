@@ -49,6 +49,7 @@ def recommend_club(distance, wind_speed, wind_direction, slope):
 
 # Set up the Streamlit app
 st.title("Golf Club Recommender")
+st.image("golf-club.jpg", caption="Photo by Markus Spiske on Unsplash", use_column_width=True)
 st.markdown("Enter the distance, wind speed, wind direction, and slope to get a recommendation for which golf club to use.")
 
 distance = st.number_input("Distance (yards)")
