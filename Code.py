@@ -1,3 +1,4 @@
+# Import the necessary modules
 import math
 import streamlit as st
 
@@ -18,22 +19,25 @@ clubDistances = {
     "Lob wedge": 60
 }
 
+# Define a function to convert wind direction string to degrees
 def get_wind_degrees(wind_direction):
-    # Convert wind direction string to degrees
+    # Dictionary to map wind direction strings to degrees
     directions = {"N": 0, "NE": 45, "E": 90, "SE": 135, "S": 180, "SW": 225, "W": 270, "NW": 315}
+    # Return the corresponding degree value for the input wind direction string
     return directions.get(wind_direction.upper())
 
+# Define the main function that recommends a golf club based on input parameters
 def recommend_club(distance, wind_speed, wind_direction, slope_degrees):
     # Validate inputs
     if distance < 0 or wind_speed < 0 or slope_degrees < -90 or slope_degrees > 90:
         return "Invalid input values. Please check your inputs."
-
-    # Calculate actual distance taking into account wind and slope
+    
+    # Calculate the actual distance taking into account wind and slope
     wind_degrees = get_wind_degrees(wind_direction)
     wind_effect = wind_speed * math.sin(math.radians(wind_degrees))
     slope_effect = distance * math.tan(math.radians(slope_degrees))
     actual_distance = distance + wind_effect + slope_effect
-
+    
     # Find the club with the closest distance to the actual distance
     closest_distance = float("inf")
     closest_club = ""
@@ -42,7 +46,7 @@ def recommend_club(distance, wind_speed, wind_direction, slope_degrees):
         if distance_diff < closest_distance:
             closest_distance = distance_diff
             closest_club = club
-
+    
     # Return the recommended club as a string
     return closest_club
 
@@ -50,12 +54,15 @@ def recommend_club(distance, wind_speed, wind_direction, slope_degrees):
 st.title("Golf Club Recommender")
 st.markdown("Enter the distance, wind speed, wind direction, and slope to get a recommendation for which golf club to use.")
 
+# Add input fields for distance, wind speed, wind direction, and slope
 distance = st.number_input("Distance (yards)", min_value=0)
 wind_speed = st.number_input("Wind Speed (mph)", min_value=0)
 wind_direction = st.selectbox("Wind Direction", ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
 slope_degrees = st.slider("Slope (degrees)", min_value=-90, max_value=90)
 
+# Add a button to trigger the recommendation function
 if st.button("Recommend Club"):
+    # Call the recommend_club function with the input values and display the recommended club
     club = recommend_club(distance, wind_speed, wind_direction, slope_degrees)
     if "Invalid input values" in club:
         st.error(club)
