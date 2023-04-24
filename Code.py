@@ -29,12 +29,37 @@ def get_wind_degrees(wind_direction):
     elif wind_direction == "W":
         return 270
 
+def get_location():
+    if st.button("Use my location"):
+        try:
+            # Get the user's location using the browser's geolocation API
+            location = st.experimental_get_query_params().get("location")
+            if location is not None:
+                return location[0]
+            else:
+                location = st.experimental_get_location_from_browser()
+                return f"{location.latitude},{location.longitude}"
+        except:
+            pass
+    return None
+
+def get_wind(location):
+    if location is None:
+        wind_speed = st.number_input("Wind Speed (mph)")
+        wind_direction = st.selectbox("Wind Direction", ["N", "S", "E", "W"])
+    else:
+        # Get wind speed and direction at the specified location
+        response = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={location[0]}&lon={location[1]}&appid=YOUR_API_KEY")
+        data = response.json()
+        wind_speed = data["wind"]["speed"]
+        wind_direction = data["wind"]["deg"]
+        st.write(f"Wind speed: {wind_speed} mph")
+        st.write(f"Wind direction: {wind_direction} degrees")
+    return wind_speed, wind_direction
+
 def recommend_club(distance, location, slope):
-    # Get wind speed and direction at the specified location
-    response = requests.get(f"https://api.openweathermap.org/data/2.5/weather?q={location}&appid=YOUR_API_KEY")
-    data = response.json()
-    wind_speed = data["wind"]["speed"]
-    wind_direction = data["wind"]["deg"]
+    # Get wind speed and direction
+    wind_speed, wind_direction = get_wind(location)
 
     # Calculate actual distance taking into account wind and slope
     wind_degrees = get_wind_degrees(wind_direction)
@@ -56,12 +81,7 @@ def recommend_club(distance, location, slope):
 
 # Set up the Streamlit app
 st.title("Golf Club Recommender")
-st.markdown("Enter the distance, location, and slope to get a recommendation for which golf club to use.")
+st.markdown("Enter the distance and slope, and choose to use your location or manually input wind data to get a recommendation for which golf club to use.")
 
 distance = st.number_input("Distance (yards)")
-location = st.text_input("Location")
-slope = st.number_input("Slope (degrees)")
-
-if st.button("Recommend Club"):
-    club = recommend_club(distance, location, slope)
-    st.success(f"Recommended club: {club}")
+slope = st.number_input("Slope
