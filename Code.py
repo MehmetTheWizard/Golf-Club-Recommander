@@ -84,4 +84,5 @@ st.title("Golf Club Recommender")
 st.markdown("Enter the distance and slope, and choose to use your location or manually input wind data to get a recommendation for which golf club to use.")
 
 distance = st.number_input("Distance (yards)")
-slope = st.number_input("Slope
+slope = st.number_input("Slope (degrees)")
+
