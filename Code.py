@@ -1,5 +1,6 @@
 import math
 import streamlit as st
+import requests
 
 # Define the distances for each golf club in yards
 clubDistances = {
@@ -28,7 +29,13 @@ def get_wind_degrees(wind_direction):
     elif wind_direction == "W":
         return 270
 
-def recommend_club(distance, wind_speed, wind_direction, slope):
+def recommend_club(distance, location, slope):
+    # Get wind speed and direction at the specified location
+    response = requests.get(f"https://api.openweathermap.org/data/2.5/weather?q={location}&appid=YOUR_API_KEY")
+    data = response.json()
+    wind_speed = data["wind"]["speed"]
+    wind_direction = data["wind"]["deg"]
+
     # Calculate actual distance taking into account wind and slope
     wind_degrees = get_wind_degrees(wind_direction)
     wind_effect = wind_speed * math.sin(math.radians(wind_degrees))
@@ -49,14 +56,12 @@ def recommend_club(distance, wind_speed, wind_direction, slope):
 
 # Set up the Streamlit app
 st.title("Golf Club Recommender")
-st.image("golf-club.jpg", caption="Photo by Markus Spiske on Unsplash", use_column_width=True)
-st.markdown("Enter the distance, wind speed, wind direction, and slope to get a recommendation for which golf club to use.")
+st.markdown("Enter the distance, location, and slope to get a recommendation for which golf club to use.")
 
 distance = st.number_input("Distance (yards)")
-wind_speed = st.number_input("Wind Speed (mph)")
-wind_direction = st.selectbox("Wind Direction", ["N", "S", "E", "W"])
+location = st.text_input("Location")
 slope = st.number_input("Slope (degrees)")
 
 if st.button("Recommend Club"):
-    club = recommend_club(distance, wind_speed, wind_direction, slope)
+    club = recommend_club(distance, location, slope)
     st.success(f"Recommended club: {club}")
