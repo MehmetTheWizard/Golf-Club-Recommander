@@ -47,18 +47,62 @@ def recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_col
             closest_distance = distance_diff
             closest_club = club
     
-    # Return the recommended club and flag explanation as a string
-    flag_explanation = ""
-    if flag_color == "Red":
-        flag_explanation = "A red flag indicates the hole is at the front of the green."
-    elif flag_color == "Blue":
-        flag_explanation = "A blue flag denotes the pin is at the back of the green."
-    elif flag_color == "Yellow":
-        flag_explanation = "A yellow flag shows the pin position is at the back of the green."
-    elif flag_color == "White":
-        flag_explanation = "A white flag signals the hole position is in the middle of the green."
+    # Calculate the iron or wedge to use based on the flag color and distance
+    club_type = calculate_club_type(distance, flag_color)
+    if club_type == "Iron":
+        iron_to_use = calculate_iron(distance)
+        club_to_use = iron_to_use
+    else:
+        club_to_use = club_type
     
-    return closest_club, flag_explanation
+    # Return the recommended club, flag explanation, and club to use as a string
+    flag_explanation = get_flag_explanation(flag_color)
+    return closest_club, flag_explanation, club_to_use
+
+# Define a function to calculate the iron or wedge to use based on the distance and flag color
+def calculate_club_type(distance, flag_color):
+    # Wedge distances for each flag color
+    wedgeDistances = {
+        "Red": (0, 100),
+        "Blue": (100, 120),
+        "Yellow": (120, 140),
+        "White": (140, float("inf"))
+    }
+    
+    # Check if the distance falls within the wedge distances
+    for color, (min_distance, max_distance) in wedgeDistances.items():
+        if min_distance <= distance < max_distance:
+            return "Wedge"
+    
+    # Return "Iron" if distance doesn't fall within wedge distances
+    return "Iron"
+
+# Define a function to calculate the iron to use based on the distance
+def calculate_iron(distance):
+    # Find the iron that provides the best chance of reaching the green based on distance
+    closest_distance = float("inf")
+    closest_iron = ""
+    for iron, iron_distance in clubDistances.items():
+        if "iron" in iron.lower():
+            distance_diff = abs(iron_distance - distance)
+            if distance_diff < closest_distance:
+                closest_distance = distance_diff
+                closest_iron = iron
+    
+    return closest_iron
+
+# Define a function to get the flag explanation based on the flag color
+def get_flag_explanation(flag_color):
+    # Dictionary to map flag colors to explanations
+    flag_explanations = {
+        "Red": "A red flag indicates the hole is at the front of the green.",
+        "Blue": "A blue flag denotes the pin is at the back of the green.",
+        "Yellow": "A yellow flag shows the pin position is at the back of the green.",
+        "White": "A white flag signals the hole position is in the middle of the green."
+    }
+    
+    # Return the flag explanation for the given flag color
+    return flag_explanations.get(flag_color)
 
 # Set up the Streamlit app
 st.title("Golf Club Recommender")
@@ -79,10 +123,11 @@ if st.button("Recommend Club"):
     if distance == 0:
         st.error("Please enter a valid distance.")
     else:
-        # Call the recommend_club function with the input values and display the recommended club and flag explanation
-        club, explanation = recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_color)
+        # Call the recommend_club function with the input values and display the recommended club, flag explanation, and club to use
+        club, explanation, club_to_use = recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_color)
         if "Invalid input values" in club:
             st.error(club)
         else:
             st.success(f"Recommended club: {club}")
             st.info(explanation)
+            st.info(f"Club to use: {club_to_use}")
