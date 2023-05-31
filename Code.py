@@ -14,8 +14,10 @@ clubDistances = {
     "8-iron": 120,
     "9-iron": 110,
     "Pitching wedge": 100,
-    "Sand wedge": 80,
-    "Lob wedge": 60
+    "Approach wedge": 90,
+    "Sand wedge (54 degrees)": 54,
+    "Sand wedge (56 degrees)": 56,
+    "Lob wedge (60 degrees)": 60
 }
 
 # Define a function to convert wind direction string to degrees
@@ -63,21 +65,16 @@ def recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_col
 st.title("Golf Club Recommender")
 st.markdown("Enter the distance, wind speed, wind direction, slope, and flag color to get a recommendation for which golf club to use.")
 
-# Add two columns for data input
-col1, col2 = st.beta_columns(2)
-
-# Add input fields for distance, wind speed, wind direction, and flag color in the first column
-distance = col1.number_input("Distance (yards)", min_value=0)
-wind_speed = col1.number_input("Wind Speed (km/h)", min_value=0)
-wind_direction = col1.selectbox("Wind Direction", ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
-flag_color = col1.selectbox("Flag Color", ["Red", "Blue", "Yellow", "White"])
-
-# Add a box for the slope input in the second column
-slope_degrees = col2.number_input("Slope (degrees)", min_value=-40, max_value=40, value=0)
+# Add input fields for distance, wind speed, wind direction, slope, and flag color
+distance = st.number_input("Distance (yards)", min_value=0)
+wind_speed = st.number_input("Wind Speed (km/h)", min_value=0)
+wind_direction = st.selectbox("Wind Direction", ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
+slope_degrees = st.slider("Slope (degrees)", min_value=-40, max_value=40)
+flag_color = st.selectbox("Flag Color", ["Red", "Blue", "Yellow", "White"])
 
 # Add a button to trigger the recommendation function
 if st.button("Recommend Club"):
-    # Call the recommend_club function with the input values and display the recommended club
+    # Call the recommend_club function with the input values and display the recommended club and flag explanation
     club, explanation = recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_color)
     if "Invalid input values" in club:
         st.error(club)
