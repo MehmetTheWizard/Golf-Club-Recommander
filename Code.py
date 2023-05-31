@@ -50,49 +50,43 @@ def recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_col
             closest_distance = distance_diff
             closest_club = club
     
-    # Calculate the iron or wedge to use based on the flag color and distance
-    club_type = calculate_club_type(distance, flag_color)
-    if club_type == "Iron":
-        iron_to_use = calculate_iron(distance)
-        club_to_use = iron_to_use
-    else:
-        club_to_use = club_type
+    # Calculate the club to use based on the flag color and distance
+    club_to_use = calculate_club(distance, flag_color)
     
     # Return the recommended club, flag explanation, and club to use as a string
     flag_explanation = get_flag_explanation(flag_color)
     return closest_club, flag_explanation, club_to_use
 
-# Define a function to calculate the iron or wedge to use based on the distance and flag color
-def calculate_club_type(distance, flag_color):
-    # Wedge distances for each flag color
-    wedgeDistances = {
+# Define a function to calculate the club to use based on the distance and flag color
+def calculate_club(distance, flag_color):
+    # Iron distances for each flag color
+    ironDistances = {
         "Red": (0, 100),
         "Blue": (100, 120),
         "Yellow": (120, 140),
         "White": (140, float("inf"))
     }
     
+    # Wedge distances for each flag color
+    wedgeDistances = {
+        "Red": (0, 70),
+        "Blue": (70, 80),
+        "Yellow": (80, 90),
+        "White": (90, float("inf"))
+    }
+    
+    # Check if the distance falls within the iron distances
+    for color, (min_distance, max_distance) in ironDistances.items():
+        if min_distance <= distance < max_distance:
+            return "Iron"
+    
     # Check if the distance falls within the wedge distances
     for color, (min_distance, max_distance) in wedgeDistances.items():
         if min_distance <= distance < max_distance:
             return "Wedge"
     
-    # Return "Iron" if distance doesn't fall within wedge distances
+    # Return "Iron" if distance doesn't fall within iron or wedge distances
     return "Iron"
-
-# Define a function to calculate the iron to use based on the distance
-def calculate_iron(distance):
-    # Find the iron that provides the best chance of reaching the green based on distance
-    closest_distance = float("inf")
-    closest_iron = ""
-    for iron, iron_distance in clubDistances.items():
-        if "iron" in iron.lower():
-            distance_diff = abs(iron_distance - distance)
-            if distance_diff < closest_distance:
-                closest_distance = distance_diff
-                closest_iron = iron
-    
-    return closest_iron
 
 # Define a function to get the flag explanation based on the flag color
 def get_flag_explanation(flag_color):
