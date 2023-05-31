@@ -27,7 +27,7 @@ def get_wind_degrees(wind_direction):
     return directions.get(wind_direction.upper())
 
 # Define the main function that recommends a golf club based on input parameters
-def recommend_club(distance, wind_speed, wind_direction, slope_degrees):
+def recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_color):
     # Validate inputs
     if distance < 0 or wind_speed < 0 or slope_degrees < -90 or slope_degrees > 90:
         return "Invalid input values. Please check your inputs."
@@ -47,24 +47,36 @@ def recommend_club(distance, wind_speed, wind_direction, slope_degrees):
             closest_distance = distance_diff
             closest_club = club
     
-    # Return the recommended club as a string
-    return closest_club
+    # Return the recommended club and flag explanation as a string
+    flag_explanation = ""
+    if flag_color == "Red":
+        flag_explanation = "A red flag indicates the hole is at the front of the green."
+    elif flag_color == "Blue":
+        flag_explanation = "A blue flag denotes the pin is at the back of the green."
+    elif flag_color == "Yellow":
+        flag_explanation = "A yellow flag shows the pin position is at the back of the green."
+    elif flag_color == "White":
+        flag_explanation = "A white flag signals the hole position is in the middle of the green."
+    
+    return closest_club, flag_explanation
 
 # Set up the Streamlit app
 st.title("Golf Club Recommender")
-st.markdown("Enter the distance, wind speed, wind direction, and slope to get a recommendation for which golf club to use.")
+st.markdown("Enter the distance, wind speed, wind direction, slope, and flag color to get a recommendation for which golf club to use.")
 
-# Add input fields for distance, wind speed, wind direction, and slope
+# Add input fields for distance, wind speed, wind direction, slope, and flag color
 distance = st.number_input("Distance (yards)", min_value=0)
 wind_speed = st.number_input("Wind Speed (mph)", min_value=0)
 wind_direction = st.selectbox("Wind Direction", ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
 slope_degrees = st.slider("Slope (degrees)", min_value=-90, max_value=90)
+flag_color = st.selectbox("Flag Color", ["Red", "Blue", "Yellow", "White"])
 
 # Add a button to trigger the recommendation function
 if st.button("Recommend Club"):
-    # Call the recommend_club function with the input values and display the recommended club
-    club = recommend_club(distance, wind_speed, wind_direction, slope_degrees)
+    # Call the recommend_club function with the input values and display the recommended club and flag explanation
+    club, explanation = recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_color)
     if "Invalid input values" in club:
         st.error(club)
     else:
         st.success(f"Recommended club: {club}")
+        st.info(explanation)
