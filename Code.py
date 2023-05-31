@@ -24,9 +24,9 @@ def get_wind_degrees(wind_direction):
     return directions.get(wind_direction.upper())
 
 # Define the main function that recommends a golf club based on input parameters
-def recommend_club(hit_distance, green_distance, hole_distance, wind_speed, wind_direction, in_rough, in_sand):
+def recommend_club(hit_distance, green_distance, wind_speed, wind_direction, in_rough, in_sand):
     # Validate inputs
-    if hit_distance < 0 or green_distance < 0 or hole_distance < 0 or wind_speed < 0:
+    if hit_distance < 0 or green_distance < 0 or wind_speed < 0:
         return "Invalid input values. Please check your inputs."
     
     # Convert wind direction from km/h to degrees
@@ -36,12 +36,9 @@ def recommend_club(hit_distance, green_distance, hole_distance, wind_speed, wind
     adjusted_hit_distance = hit_distance + (wind_speed * math.sin(math.radians(wind_degrees)))
     
     # Calculate remaining distance to the green
-    remaining_distance = hole_distance - adjusted_hit_distance
+    remaining_distance = green_distance - adjusted_hit_distance
     
-    # Adjust club based on remaining distance to the green
-    adjusted_distance_to_green = green_distance - remaining_distance
-    
-    # Find the club with the closest distance to the adjusted distance to the green
+    # Find the club with the closest distance to the remaining distance to the green
     closest_distance = float("inf")
     closest_club = ""
     for club, club_data in clubDistances.items():
@@ -50,7 +47,7 @@ def recommend_club(hit_distance, green_distance, hole_distance, wind_speed, wind
         else:
             club_distance = club_data
             club_name = club
-        distance_diff = abs(club_distance - adjusted_distance_to_green)
+        distance_diff = abs(club_distance - remaining_distance)
         if distance_diff < closest_distance:
             closest_distance = distance_diff
             closest_club = f"{club_name} ({club_distance} yards)"
@@ -65,12 +62,11 @@ def recommend_club(hit_distance, green_distance, hole_distance, wind_speed, wind
 
 # Set up the Streamlit app
 st.title("Golf Club Recommender")
-st.markdown("Enter the distance you want to hit, distance of the green, complete hole distance, wind speed in km/h, wind direction, and conditions (Rough/Sand) to get a recommendation for the right golf club to use.")
+st.markdown("Enter the distance you want to hit, distance of the green, wind speed in km/h, wind direction, and conditions (Rough/Sand) to get a recommendation for the right golf club to use.")
 
-# Add input fields for hit distance, green distance, hole distance, wind speed, and wind direction
+# Add input fields for hit distance, green distance, wind speed, and wind direction
 hit_distance = st.number_input("Distance to Hit (yards)", min_value=0)
 green_distance = st.number_input("Distance of the Green (yards)", min_value=0)
-hole_distance = st.number_input("Complete Hole Distance (yards)", min_value=0)
 wind_speed = st.number_input("Wind Speed (km/h)", min_value=0)
 wind_direction = st.selectbox("Wind Direction", ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
 in_rough = st.checkbox("Ball in Rough")
@@ -79,7 +75,7 @@ in_sand = st.checkbox("Ball in Sand")
 # Add a button to trigger the recommendation function
 if st.button("Recommend Club"):
     # Call the recommend_club function with the input values and display the recommended club
-    club = recommend_club(hit_distance, green_distance, hole_distance, wind_speed, wind_direction, in_rough, in_sand)
+    club = recommend_club(hit_distance, green_distance, wind_speed, wind_direction, in_rough, in_sand)
     if "Invalid input values" in club:
         st.error(club)
     else:
