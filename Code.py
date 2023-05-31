@@ -69,7 +69,11 @@ st.markdown("Enter the distance, wind speed, wind direction, slope, and flag col
 distance = st.number_input("Distance (yards)", min_value=0)
 wind_speed = st.number_input("Wind Speed (km/h)", min_value=0)
 wind_direction = st.selectbox("Wind Direction", ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
-slope_degrees = st.slider("Slope (degrees)", min_value=-40, max_value=40)
+
+st.subheader("Slope (degrees)")
+slope_change = st.number_input("Change Slope", min_value=-40, max_value=40, step=1, key="slope_change")
+slope_degrees = slope_change + st.number_input("Slope (degrees)", min_value=-40, max_value=40, key="slope_degrees")
+
 flag_color = st.selectbox("Flag Color", ["Red", "Blue", "Yellow", "White"])
 
 # Add a button to trigger the recommendation function
