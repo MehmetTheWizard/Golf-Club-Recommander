@@ -25,10 +25,16 @@ def get_wind_degrees(wind_direction):
     return directions.get(wind_direction.upper())
 
 # Define the main function that recommends a golf club based on input parameters
-def recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_color):
+def recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_color, is_rough, is_sand):
     # Validate inputs
     if distance is None or distance < 0 or wind_speed < 0 or slope_degrees < -40 or slope_degrees > 40:
         return "Invalid input values. Please check your inputs."
+    
+    # Apply compensation based on rough and sand checkboxes
+    if is_rough:
+        distance -= 10
+    if is_sand:
+        distance -= 20
     
     # Calculate the actual distance taking into account wind and slope
     wind_degrees = get_wind_degrees(wind_direction)
@@ -60,7 +66,7 @@ def recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_col
 
 # Set up the Streamlit app
 st.title("Golf Club Recommender")
-st.markdown("Enter the distance, wind speed, wind direction, slope, and flag color to get a recommendation for which golf club to use.")
+st.markdown("Enter the distance, wind speed, wind direction, slope, flag color, and check the corresponding checkboxes to compensate for rough and sand.")
 
 # Add two columns for data input
 col1, col2 = st.beta_columns(2)
@@ -71,13 +77,17 @@ wind_speed = col1.number_input("Wind Speed (km/h)", min_value=0)
 wind_direction = col1.selectbox("Wind Direction", ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
 flag_color = col1.selectbox("Flag Color", ["Red", "Blue", "Yellow", "White"])
 
+# Add checkboxes for rough and sand in the second column
+is_rough = col2.checkbox("Rough")
+is_sand = col2.checkbox("Sand")
+
 # Add a box for the slope input in the second column
 slope_degrees = col2.number_input("Slope (degrees)", min_value=-40, max_value=40, value=0)
 
 # Add a button to trigger the recommendation function
 if st.button("Recommend Club"):
     # Call the recommend_club function with the input values and display the recommended club
-    club, explanation = recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_color)
+    club, explanation = recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_color, is_rough, is_sand)
     if "Invalid input values" in club:
         st.error(club)
     else:
