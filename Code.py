@@ -32,9 +32,12 @@ def recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_col
     if distance is None or distance < 0 or wind_speed < 0 or slope_degrees < -30 or slope_degrees > 30:
         return "Invalid input values. Please check your inputs."
     
+    # Convert wind speed from km/h to mph
+    wind_speed_mph = wind_speed * 0.621371
+    
     # Calculate the actual distance taking into account wind and slope
     wind_degrees = get_wind_degrees(wind_direction)
-    wind_effect = wind_speed * math.sin(math.radians(wind_degrees))
+    wind_effect = wind_speed_mph * math.sin(math.radians(wind_degrees))
     slope_effect = distance * math.tan(math.radians(slope_degrees))
     actual_distance = distance + wind_effect + slope_effect
     
@@ -110,7 +113,7 @@ st.markdown("Enter the distance, wind speed, wind direction, slope, and flag col
 
 # Add input fields for distance, wind speed, wind direction, and slope
 distance = st.number_input("Distance (yards)", min_value=0)
-wind_speed = st.number_input("Wind Speed (mph)", min_value=0)
+wind_speed = st.number_input("Wind Speed (km/h)", min_value=0)
 wind_direction = st.selectbox("Wind Direction", ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
 slope_degrees = st.number_input("Slope (degrees)", min_value=-30, max_value=30, step=1, format="%d")
 
