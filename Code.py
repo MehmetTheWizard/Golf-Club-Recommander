@@ -34,7 +34,7 @@ def recommend_club(distance, wind_speed, wind_direction, slope_degrees, flag_col
     
     # Calculate the actual distance taking into account wind and slope
     wind_degrees = get_wind_degrees(wind_direction)
-    wind_effect = wind_speed * math.sin(math.radians(wind_degrees))
+    wind_effect = (wind_speed * 1000 / 3600) * math.sin(math.radians(wind_degrees))
     slope_effect = distance * math.tan(math.radians(slope_degrees))
     actual_distance = distance + wind_effect + slope_effect
     
@@ -66,7 +66,7 @@ st.markdown("Enter the distance, wind speed, wind direction, slope, and flag col
 
 # Add input fields for distance, wind speed, wind direction, slope, and flag color
 distance = st.number_input("Distance (yards)", min_value=0)
-wind_speed = st.number_input("Wind Speed (mph)", min_value=0)
+wind_speed = st.number_input("Wind Speed (km/h)", min_value=0)
 wind_direction = st.selectbox("Wind Direction", ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
 slope_degrees = st.slider("Slope (degrees)", min_value=-90, max_value=90)
 flag_color = st.selectbox("Flag Color", ["Red", "Blue", "Yellow", "White"])
